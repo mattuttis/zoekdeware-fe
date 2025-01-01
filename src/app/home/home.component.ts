@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {MemberComponent} from "../member/member.component";
-import {AsyncPipe, NgForOf} from "@angular/common";
+import {AsyncPipe} from "@angular/common";
 import {MemberService} from "../service/member.service";
 
 @Component({
@@ -8,17 +8,22 @@ import {MemberService} from "../service/member.service";
   standalone: true,
   imports: [
     MemberComponent,
-    NgForOf,
     AsyncPipe
   ],
   template: `
     <h1>Laatste leden</h1>
-    <app-member *ngFor="let member of members$ | async" [member]="member"></app-member>
+    @if (members$ | async; as members) {
+      @for (member of members; track member.id) {
+        <app-member [member]="member"></app-member>
+      }
+    } @else {
+      Geen leden gevonden!
+    }
   `,
   styles: ``
 })
 export class HomeComponent {
-  members$ = this.memberService.members$
+  members$ = this.memberService.getMembers();
 
   constructor(private memberService: MemberService) {
   }
